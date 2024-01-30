@@ -1,26 +1,31 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>H.A.L.N.A System</title>
+    <meta charset="UTF-8">
+    <title>H.A.L.N.A System - Home</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            text-align: center;
-        }
-
         .header {
-            background-color: #333;
-            color: #fff;
+            background-color: #007bff; /* Bootstrap primary color */
+            color: white;
             padding: 10px 0;
+            text-align: center;
+            margin-bottom: 20px;
         }
 
         .content {
-            margin: 20px;
             padding: 20px;
-            background-color: white;
+        }
+
+        footer {
+            background-color: #f8f9fa; /* A light gray background */
+            color: #6c757d; /* A gray text color */
+            text-align: center;
+            padding: 10px 0;
+            position: relative;
+            bottom: 0;
+            width: 100%;
         }
     </style>
 </head>
@@ -28,10 +33,95 @@
     <div class="header">
         <h1>Welcome to H.A.L.N.A System</h1>
     </div>
+    <!-- Bootstrap Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="index.html">H.A.L.N.A</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item active">
+                    <a class="nav-link" href="index.html">Home <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="demo_flow.html">Demo Flow</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="mode_explanation.html">Mode Explanation</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="tutorial.html">Tutorial</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
 
-    <div class="content">
-        <p>This is the H.A.L.N.A System. More content and features can be added here.</p>
-        <!-- Add more content or features as needed -->
+
+
+    <div class="container content">
+        <h2>Home</h2>
+        <h3 style="margin-top: 20px;">構成の説明 </h3>
+
+        HALNAは3DLiDARと高精度IMUを用いた高精度の自己位置推定＋ナビゲーション  <br>
+        
+        名前の由来はHighly Accurate Localization and Navigation Application の頭文字を取ったもの  <br>
+        
+         
+        
+        停止精度は弊社環境で+-10cm 10度以下。  <br>
+        
+        対応ロボットはUnitree go1, go2, B1, B2. Agilex Scout mini, Tracer, Bunker mini（その他の機種については順次対応予定）  <br>
+        
+         
+        <h3 style="margin-top: 20px;">構成機材 </h3> 
+        <p>---------------------------------------------------------</p>
+        
+        -   ロボット本体  <br>
+        
+        -   ナビゲーションユニット（自社製）  <br>
+        
+        -   HALNAシステム（本ソフトウェア）  <br>
+        
+        -   操作用PC  <br>
+        
+       -    ディスプレイx2（操作用PCにディスプレイがついている場合はx1）  <br>
+        
+        -   シグナリング兼操作用GUI用PC（クラウド上でも可能、例AWS, Google cloud）  <br>
+        
+        -   弊社推奨VPN（tailsclae）基本無料、百台以上デバイスをつなげるときはエンタープライズ版  <br>
+
+        <p>---------------------------------------------------------</p>
+
+
+        <h3 style="margin-top: 20px;">スタートアップ </h3> 
+        ロボットは電源が入ったあと、Webサーバーにアクセスし、セッションを確立させます。  <br>
+        
+        サーバーは受け取った情報を元に、ロボット固有のルームと、そのロボットを所属するマップルームに配置します。  <br>
+        
+        ロボット固有のルームでは、そのロボットのみを操作でき、マップルームではそのマップに属するロボットすべての操作ができます。  <br>
+
+        <h3 style="margin-top: 20px;">スタート画面 </h3> 
+        <img src="path_to_your_image.jpg" class="img-fluid" alt="Start up image">
+        <h3 style="margin-top: 20px;">ログイン画面 </h3> 
+        <img src="path_to_your_image.jpg" class="img-fluid" alt="Login image">
+        <h3 style="margin-top: 20px;">ロボット・マップ選択画面 </h3> 
+        <img src="path_to_your_image.jpg" class="img-fluid" alt="dispatch image">
+        <h3 style="margin-top: 20px;">操作画面 </h3> 
+        <img src="path_to_your_image.jpg" class="img-fluid" alt="control image">
+
+
+
     </div>
+
+
+    <!-- Your existing page content goes here -->
+    <footer>
+        <p>&copy; 2024 H.A.L.N.A System</p>
+    </footer>
+    <!-- Bootstrap JS and Popper.js (Optional, for components like dropdowns, modals) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
