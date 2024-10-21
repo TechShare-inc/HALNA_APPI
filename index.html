@@ -263,7 +263,6 @@ msgtype: メッセージタイプ
 }
 </code></pre>
 <p>上記は先述したパラメータの中身に相当する部分です。ロボット側からまずこのパラメータが送られてきますがサーバー側から同じフォーマットで送るとロボット側でパラメータの変更が行われ、再度パラメータを変更した後、再送してきます。</p>
-<p>再送されてくるものについては、</p>
 
 <h3>graphヘッダー</h3>
 <pre><code>
@@ -683,7 +682,6 @@ rosbag操作に対する個別のレスポンスはありません。ただし�
     <li>グラフデータの場合: <code>graph_data:original_graph_node.txt</code></li>
     <li>マップデータの場合: <code>map_data:GlobalMap.png</code></li>
     <li>画像データの場合: <code>picture_data:20230101</code></li>
-    <li>パラメータデータの場合: <code>param_data:initial_param</code></li>
 </ul>
 
 <h3>送信されるデータの種類と対応するtype</h3>
@@ -691,7 +689,6 @@ rosbag操作に対する個別のレスポンスはありません。ただし�
     <li><strong>グラフデータ</strong>: <code>graph_data</code></li>
     <li><strong>マップデータ</strong>: <code>map_data</code></li>
     <li><strong>画像データ</strong>: <code>picture_data</code></li>
-    <li><strong>パラメータデータ</strong>: <code>param_data</code></li>
 </ul>
 
 <h3>データ送信の例</h3>
@@ -771,28 +768,6 @@ message = header_encoded + b'\0' + map_name_encoded + b'\0' + file_name_encoded 
 ws.send(message, opcode=websocket.ABNF.OPCODE_BINARY)
 </code></pre>
 
-<h4>4. パラメータデータの送信</h4>
-<p>
-    パラメータデータを送信する場合も、同じ形式でバイナリメッセージとして送信します。ただし、パラメータ情報はJSON形式のテキストデータをバイナリとして扱います。
-</p>
-<pre><code>
-// ヘッダーの作成
-header = "param_data:initial_param"
-// エンコード
-header_encoded = header.encode('utf-8')
-
-// 追加情報（必要に応じて）
-additional_info_encoded = b''  // 追加情報がなければ空バイト列
-
-// パラメータデータの取得とエンコード
-param_data = json.dumps(params).encode('utf-8')
-
-// メッセージの組み立て
-message = header_encoded + b'\0' + additional_info_encoded + b'\0' + param_data
-
-// メッセージの送信
-ws.send(message, opcode=websocket.ABNF.OPCODE_BINARY)
-</code></pre>
 
 <h3>サーバー側でのデコード方法</h3>
 <p>
