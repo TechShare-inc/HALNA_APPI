@@ -98,8 +98,9 @@ async def send_command_to_robot(robot_name, command):
 
 async def main():
     ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-    localhost_pem = pathlib.Path(__file__).with_name('dummy_ssl/cert.pem')
-    ssl_context.load_cert_chain(localhost_pem)
+    certfile = pathlib.Path(__file__).parent / 'dummy_ssl' / 'cert.pem'
+    keyfile = pathlib.Path(__file__).parent / 'dummy_ssl' / 'key.pem'
+    ssl_context.load_cert_chain(certfile=certfile, keyfile=keyfile)
 
     server = await websockets.serve(
         handle_connection, 'localhost', 5000, ssl=ssl_context
