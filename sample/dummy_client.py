@@ -2,6 +2,8 @@ import asyncio
 import websockets
 import json
 import ssl
+import time
+import os
 
 async def on_message(websocket):
     async for message in websocket:
@@ -41,124 +43,151 @@ async def handle_navigation_command(websocket, command):
         y = command.get('y')
         th = command.get('th')
         print(f"Navigating to ({x}, {y}, {th})")
-        # ナビゲーション処理を模擬
         await asyncio.sleep(1)
-        # 応答メッセージを送信
-        response = {
-            "sender": "robot1",
-            "timestamp": "2023-10-21T12:00:00Z",
-            "msgtype": "NAVIGATION_RESPONSE",
+        response = create_base_message("NAVIGATION_RESPONSE")
+        response.update({
             "destination": command.get('sender'),
             "command_id": command.get('command_id'),
             "result": True
-        }
-        await websocket.send(json.dumps(response))
-    # 他のナビゲーションタイプの処理も追加可能
+        })
+        await send_msg(websocket, response)
 
 async def handle_cmd_vel_command(websocket, command):
     linear_x = command.get('linear_x')
     linear_y = command.get('linear_y')
     angular_z = command.get('angular_z')
     print(f"Moving with linear_x={linear_x}, linear_y={linear_y}, angular_z={angular_z}")
-    # 速度制御を模擬
 
 async def handle_param_command(websocket, command):
     print(f"Updating parameters: {command}")
-    # パラメータ更新を模擬
-    # 更新後のパラメータをサーバーに送信
-    response = {
-        "sender": "robot1",
-        "timestamp": "2023-10-21T12:00:00Z",
-        "msgtype": "PARAM",
+    response = create_base_message("PARAM")
+    response.update({
         "destination": command.get('sender'),
         "command_id": "0",
         "type": "updated_param",
-        "msg": command  # 更新後のパラメータをそのまま返す
-    }
-    await websocket.send(json.dumps(response))
+        "msg": command
+    })
+    await send_msg(websocket, response)
 
 async def handle_graph_command(websocket, command):
     print(f"Graph command received: {command}")
-    # グラフコマンドの処理を模擬
 
 async def handle_rosbag_command(websocket, command):
     print(f"Rosbag command received: {command}")
-    # ROSBagコマンドの処理を模擬
     if command.get('type') == 'get_rosbags':
-        # ロスバグリストを返す
-        response = {
-            "sender": "robot1",
-            "timestamp": "2023-10-21T12:00:00Z",
-            "msgtype": "ROSBAG",
+        response = create_base_message("ROSBAG")
+        response.update({
             "destination": command.get('sender'),
             "command_id": "0",
             "type": "rosbag_name_list",
             "msg": ["rosbag1.bag", "rosbag2.bag"]
-        }
-        await websocket.send(json.dumps(response))
+        })
+        await send_msg(websocket, response)
 
 async def handle_picture_command(websocket, command):
     print(f"Picture command received: {command}")
-    # ピクチャーコマンドの処理を模擬
-    # 応答メッセージを送信
-    response = {
-        "sender": "robot1",
-        "timestamp": "2023-10-21T12:00:00Z",
-        "msgtype": "MESSAGE",
+    response = create_base_message("MESSAGE")
+    response.update({
         "destination": command.get('sender'),
         "command_id": "0",
         "msg": "Received all the patrol pictures",
         "error": False
-    }
-    await websocket.send(json.dumps(response))
+    })
+    await send_msg(websocket, response)
 
 async def handle_process_command(websocket, command):
     print(f"Process command received: {command}")
-    # プロセスコマンドの処理を模擬
-    # 応答メッセージを送信
-    response = {
-        "sender": "robot1",
-        "timestamp": "2023-10-21T12:00:00Z",
-        "msgtype": "MESSAGE",
+    response = create_base_message("MESSAGE")
+    response.update({
         "destination": command.get('sender'),
         "command_id": "0",
         "msg": f"Process '{command.get('systemctl')}' executed",
         "error": False
-    }
-    await websocket.send(json.dumps(response))
+    })
+    await send_msg(websocket, response)
+
+async def send_graph(websocket):
+    node_file = os.path.join("dummy_graph", "node", "original_graph_node.txt")
+    edge_file = os.path.join("dummy_graph", "edge", "original_graph_edge.txt")
+    extenstions = ["node", "edge"]
+    files = [node_file, edge_file]
+    for i in range(len(extenstions)):
+        with open(files[i], "rb") as file:
+            file_name = "graph_data:original_graph_" + extenstions[i] + ".txt"
+            file_data = file.read()
+            header = file_name.encode('utf-8')
+            floor_name = "floor_0".encode('utf-8')
+            map_name_bytes = "map_001".encode('utf-8')
+            combined_message = header + b'\0' + map_name_bytes + b'\0' + floor_name + b'\0' + file_data
+            await websocket.send(combined_message)
+        time.sleep(0.2)
 
 async def send_initial_messages(websocket):
-    # 初期接続メッセージを送信
-    initial_message = {
-        "sender": "robot1",
-        "timestamp": "2023-10-21T12:00:00Z",
-        "msgtype": "INNITIAL_CONNECTION",
+    initial_message = create_base_message("INNITIAL_CONNECTION")
+    initial_message.update({
         "destination": "server",
         "map_id": "map_001",
         "ip_address": "192.168.1.2",
         "building_number": 0,
         "floor_level": 0
-    }
-    await websocket.send(json.dumps(initial_message))
+    })
+    await send_msg(websocket, initial_message)
+    await send_graph(websocket)
 
-    # グラフデータの送信（バイナリメッセージ）
-    header = "graph_data:original_graph_node.txt".encode('utf-8')
-    map_name = "map_001".encode('utf-8')
-    floor_name = "floor_0".encode('utf-8')
-    graph_data = b"Sample graph data content"
-    message = header + b'\0' + map_name + b'\0' + floor_name + b'\0' + graph_data
-    await websocket.send(message)
-
-    # パラメータデータの送信（バイナリメッセージ）
-    header = "param_data:initial_param".encode('utf-8')
     params = {
-        "map_id": "map_001",
-        "minimum_height_for_conversion": 0.1,
-        "maximum_height_for_conversion": 2.0,
-        "robot_name": "robot1"
+        "MAP_ID": "map_001",
+        "MINIMUM_HEIGHT_FOR_CONVERSION": 0.1,
+        "MAXIMUM_HEIGHT_FOR_CONVERSION": 2.0,
+        "ROBOT_NAME": "robot1",
+        "ROBOT_INTERFACE": "wlo1",
+        "RCS_SERVER_ADDRESS": "127.0.0.1",
+        "ROBOT_TYPE": "go2",
+        "ROBOT_ID": "go2_fake",
+        "WORLD_ID": "test",
+        "WORK_SPACE": "test_ws",
+        "OPERATION_TYPE": "make_map",
+        "CAMERA_NAME": "front_camera",
+        "POINTCLOUD_VISUALIZED": "terrain_map",
+        "SIM": "false",
+        "DEBUG": "true",
+        "ROS_DOMAIN_ID": "43",
+        "LIDAR_TYPE": "velodyne",
+        "LIVOX_ADDRESS": "192.168.1.3",
+        "LIDAR_INTERFACE": "docker0",
+        "SLAM_TYPE": "ig_lio_sam",
+        "MAXIMUM_HEIGHT_FOR_CONVERSION_CONFIG": "3.0",
+        "MINIMUM_HEIGHT_FOR_CONVERSION_CONFIG": "0.1",
+        "LEAF_SIZE_FOR_CONVERSION": "0.01",
+        "GROUPING_THRESHOLD_FOR_CONVERSION": "0.02",
+        "VOXEL_SIZE_FOR_CONVERSION": "0.5",
+        "MIN_HEIGHT_FOR_MOVE": "-0.1",
+        "CMD_VEL_TOPIC": "diff_cont/cmd_vel_unstamped",
+        "FOR_ARM_CHARGING": "false",
+        "DESIRED_MODE": "ai",
+        "PTZ_MODEL_NAME": "zt6",
+        "DOCKER": "false",
+        "LTE_INTERFACE": "eth10"
     }
-    param_data = json.dumps(params).encode('utf-8')
-    message = header + b'\0' + b'' + b'\0' + param_data
+
+    param_msg = create_base_message("PARAM")
+    param_msg.update({
+        "destination": "server",
+        "command_id": "0",
+        "type": "initial_param",
+        "msg": params
+    })
+    await send_msg(websocket, param_msg)
+
+def create_base_message(msg_type):
+    return {
+        "sender": "robot1",
+        "timestamp": time.time(),
+        "msgtype": msg_type,
+    }
+
+async def send_msg(websocket, payload):
+    message = json.dumps({"message": payload})
+    print(f"Sending: {message}")
     await websocket.send(message)
 
 async def main():

@@ -6,7 +6,7 @@ import websockets
 import json
 import ssl
 import pathlib
-
+import os
 # ロボットごとの接続を管理するための辞書
 connected_robots = {}
 
@@ -51,17 +51,14 @@ async def handle_binary_message(robot_name, message):
     sections = message.split(b'\0')
     header = sections[0].decode('utf-8')
     type_, name = header.split(':')
-    if type_ == 'param_data':
-        # パラメータデータの処理
-        param_data = sections[2]
-        params = json.loads(param_data.decode('utf-8'))
-        print(f"Received parameters from {robot_name}: {params}")
-    else:
-        # ファイルデータの保存
+    if type_ == "graph_data":
         additional_info = sections[1].decode('utf-8')
-        data = sections[2]
+        floor = sections[2].decode('utf-8')
+        data = sections[3]
         filename = f"{robot_name}_{name}"
-        with open(filename, 'wb') as f:
+        file_path = os.path.join("save_folder", floor, filename)
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        with open(file_path, 'wb') as f:
             f.write(data)
         print(f"Saved file '{filename}' from {robot_name}")
 
