@@ -791,23 +791,13 @@ sections = message.split(b'\0')
 # ヘッダーのデコード
 header = sections[0].decode('utf-8')
 type_, name = header.split(':')
-
-# データの種類に応じて処理
-if type_ == 'param_data':
-    # パラメータデータの場合
-    param_data = sections[2]  # データ部分
-    params = json.loads(param_data.decode('utf-8'))
-    # パラメータを適用または保存
-    apply_params(params)
-else:
-    # その他のデータの場合
-    additional_info = sections[1].decode('utf-8')
-    data = sections[2]  # データ部分
-    # ファイルの保存先を決定
-    save_path = determine_save_path(type_, name, additional_info)
-    # ファイルを保存
-    with open(save_path, 'wb') as file:
-        file.write(data)
+additional_info = sections[1].decode('utf-8')
+data = sections[2]  # データ部分
+# ファイルの保存先を決定
+save_path = determine_save_path(type_, name, additional_info)
+# ファイルを保存
+with open(save_path, 'wb') as file:
+    file.write(data)
 </code></pre>
 
 <h3>注意事項</h3>
