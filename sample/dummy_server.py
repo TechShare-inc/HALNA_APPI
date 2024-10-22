@@ -7,8 +7,13 @@ import json
 import ssl
 import pathlib
 import os
+import threading
+
+
 # ロボットごとの接続を管理するための辞書
 connected_robots = {}
+initial_connection = False
+
 
 async def handle_connection(websocket, path):
     robot_name = path.strip('/').split('/')[-1]
@@ -51,21 +56,20 @@ async def handle_binary_message(robot_name, message):
     sections = message.split(b'\0')
     header = sections[0].decode('utf-8')
     type_, name = header.split(':')
-    if type_ == "graph_data":
-        additional_info = sections[1].decode('utf-8')
-        floor = sections[2].decode('utf-8')
-        data = sections[3]
-        filename = f"{robot_name}_{name}"
-        file_path = os.path.join("save_folder", floor, filename)
-        os.makedirs(os.path.dirname(file_path), exist_ok=True)
-        with open(file_path, 'wb') as f:
-            f.write(data)
-        print(f"Saved file '{filename}' from {robot_name}")
+    filename = sections[1].decode('utf-8')
+    detail = sections[2].decode('utf-8')
+    data = sections[3]
+    file_path = os.path.join("save_folder", type_, detail, filename)
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    with open(file_path, 'wb') as f:
+        f.write(data)
+    print(f"Saved file '{filename}' from {robot_name}")
 
 async def handle_initial_connection(robot_name, data):
     print(f"Handling initial connection from {robot_name}")
-    # 必要な初期化処理を行う
-    # ここでは特に何もしない
+    if not initial_connection:
+        initial_connection = True
+
 
 async def handle_navigation_response(robot_name, data):
     result = data.get('result')
@@ -107,3 +111,5 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
+    send_message_thread = 
